@@ -1,1 +1,1 @@
-mongodb-database-tools
+mongo-tools
