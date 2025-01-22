@@ -1,4 +1,0 @@
-wget
-curl
-mongodb-database-tools
-gnupg
