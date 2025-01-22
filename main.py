@@ -1,3 +1,4 @@
+import traceback
 import streamlit as st
 import pymongo
 from pymongo.errors import ConnectionFailure
@@ -12,7 +13,9 @@ import platform
 import zipfile
 
 # Constants
-MAX_EXPORT_SIZE = int(os.environ.get("MAX_EXPORT_SIZE", 512 * 1024 * 1024))  # 512MB in bytes
+MAX_EXPORT_SIZE = int(
+    os.environ.get("MAX_EXPORT_SIZE", 512 * 1024 * 1024)
+)  # 512MB in bytes
 BACKUP_RETENTION_HOURS = int(os.environ.get("BACKUP_RETENTION_HOURS", 1))
 OUTPUT_DIR = "backups"
 SOURCE_URL = "https://github.com/kevinnadar22/mongo-backup-tool"
@@ -436,22 +439,23 @@ def restore_database(uri, zip_file, db_name):
         # Process output in real-time
         while True:
             line = process.stderr.readline()
+            # write a text and remove it before next write
             if not line and process.poll() is not None:
                 break
-
-            # Update status text with document count
-            if "document" in line:
-                status_text.text("Restoring... Please wait")
-
+            status_text.text(line)
         # Get final result
         stdout, stderr = process.communicate()
 
         if process.returncode != 0:
-            st.error(f"Error restoring databases: {stderr}")
+            tip = "Sometimes adding ?authSource=admin to your URI helps"
+            st.error(f"Error restoring databases: {stderr}\n\n{tip}")
         else:
             st.success(f"✅ Database restored successfully to '{db_name}'!")
 
+        status_text.empty()
+
     except Exception as e:
+        traceback.print_exc()
         st.error(f"Error during restore: {str(e)}")
     finally:
         # Cleanup
