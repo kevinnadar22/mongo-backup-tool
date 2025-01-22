@@ -47,11 +47,48 @@ if "cancel_backup" not in st.session_state:
 
 # Check if mongodump is installed
 def is_mongodump_installed():
+    """Check if mongodump is installed and install if missing"""
     try:
+        # Try to run mongodump
         subprocess.run(["mongodump", "--version"], capture_output=True)
         return True
     except FileNotFoundError:
-        return False
+        try:
+            # Make install script executable and run it
+            install_script = "install_mongodb_tools.sh"
+            if os.path.exists(install_script):
+                st.info("MongoDB tools not found. Attempting automatic installation...")
+                
+                # Make script executable
+                os.chmod(install_script, 0o755)
+                
+                # Run installation script
+                result = subprocess.run(
+                    [f"./{install_script}"],
+                    capture_output=True,
+                    text=True,
+                    shell=True
+                )
+                
+                if result.returncode == 0:
+                    st.success("MongoDB tools installed successfully!")
+                    return True
+                else:
+                    st.error(f"Failed to install MongoDB tools automatically: {result.stderr}")
+            
+            # Show manual installation instructions
+            st.error(
+                f"""
+                mongodump is not installed! 
+                
+                {get_mongodump_install_instructions()}
+                """
+            )
+            return False
+            
+        except Exception as e:
+            st.error(f"Error during installation: {str(e)}")
+            return False
 
 
 def get_mongodump_install_instructions():
