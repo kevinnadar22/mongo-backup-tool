@@ -468,15 +468,6 @@ st.title("MongoDB Backup & Restore Tool 💾")
 st.caption("Backup and restore your MongoDB databases with ease")
 
 
-# Privacy Warning
-st.warning(
-    f"""
-⚠️ **Privacy Notice**: 
-- For private data, please [host this tool yourself]({SOURCE_URL})
-- All backups are automatically deleted after {BACKUP_RETENTION_HOURS} hour
-"""
-)
-
 if not is_mongodump_installed():
     st.error(
         f"""
@@ -492,7 +483,7 @@ uri = st.text_input("MongoDB URI", placeholder="mongodb://localhost:27017")
 
 if uri:
     # Username and password must be escaped according to RFC 3986, use urllib.parse.quote_plus
-    #uri = urllib.parse.quote_plus(uri)
+    # uri = urllib.parse.quote_plus(uri)
     try:
         client = pymongo.MongoClient(uri)
         databases = client.list_database_names()
@@ -550,15 +541,28 @@ if uri:
                 )
 
                 if new_db_name:
-                    st.info(
-                        "ℹ️ If this database already exists, the backup will be merged with existing data."
+                    st.warning(
+                        """
+                        ⚠️ **Important Notes:**
+                        - If this database already exists, the backup will be merged with existing data
+                        - The restore process may take several minutes depending on the size
+                        - Please DO NOT close your browser during restoration
+                        """
                     )
+                    if "restore_started" not in st.session_state:
+                        st.session_state.restore_started = False
 
-                if st.button("📥 Start Restore", use_container_width=True):
-                    if not new_db_name:
-                        st.error("Please enter a database name")
-                    else:
+                    if st.button(
+                        "📥 Start Restore",
+                        use_container_width=True,
+                        disabled=st.session_state.restore_started,
+                    ):
+                        st.session_state.restore_started = True
+
+                    if st.session_state.restore_started:
                         restore_database(uri, uploaded_file, new_db_name)
+                        # Reset the state after completion
+                        st.session_state.restore_started = False
 
     except ConnectionFailure:
         if "localhost" in uri:

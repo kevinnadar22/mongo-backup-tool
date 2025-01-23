@@ -4,3 +4,4 @@ backups/
 
 # Don't ignore the install script
 !install_mongodb_tools.sh
+test.py
