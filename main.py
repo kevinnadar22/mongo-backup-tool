@@ -93,12 +93,6 @@ def get_mongodump_install_instructions():
         return "Install using apt: `sudo apt-get install mongodb-database-tools`"
 
 
-# remove old backups
-if os.path.exists(OUTPUT_DIR):
-    shutil.rmtree(OUTPUT_DIR)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-
 def cleanup_old_backups():
     """Delete backup directories older than BACKUP_RETENTION_HOURS"""
     while True:
