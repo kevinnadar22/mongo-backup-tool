@@ -11,6 +11,7 @@ import time
 import subprocess
 import platform
 import zipfile
+import urllib.parse
 
 # Constants
 MAX_EXPORT_SIZE = int(
@@ -490,7 +491,8 @@ if not is_mongodump_installed():
 uri = st.text_input("MongoDB URI", placeholder="mongodb://localhost:27017")
 
 if uri:
-
+    # Username and password must be escaped according to RFC 3986, use urllib.parse.quote_plus
+    uri = urllib.parse.quote_plus(uri)
     try:
         client = pymongo.MongoClient(uri)
         databases = client.list_database_names()
