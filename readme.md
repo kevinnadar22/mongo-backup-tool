@@ -13,7 +13,7 @@ A simple web tool to backup and restore MongoDB databases.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/kevinnadar22/mongodb-backup-tool.git
+git clone https://github.com/kevinnadar22/mongo-backup-tool.git
 cd mongodb-backup-tool
 ```
 
